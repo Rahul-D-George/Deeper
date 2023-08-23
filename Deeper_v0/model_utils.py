@@ -41,7 +41,7 @@ class NeuralNetwork:
             self.g = [np.tanh for _ in range(self.n - 1)]
             self.g.append(id)
             self.gprime = [lambda x : 1 - np.tanh(x)**2 for _ in range(self.n - 1)]
-            self.gprime.append(id)
+            self.gprime.append(lambda x : 1)
         else:
             self.g = g
             self.gprime = gprime
@@ -57,27 +57,20 @@ class NeuralNetwork:
     def __forward_prop(self):
         A = self.X
         for l in range(1, self.n):
-            print(f"\nCACHE CREATION")
-            print(f"Creating cache for layer {l}")
             Z = np.dot(self.W[l-1], A)
-            print(f"Successfully created Z matrix.\nAttempting to create A matrix using {self.g[l]}")
             A = self.g[l](Z)
-            print(f"Current shape of Z: {np.shape(A)}\nCurrent shape of A: {np.shape(Z)}")
             self.cache[l]= [Z, A]
-        print("\nNOW SUGGESTING CACHE FORMS")
-        for i in self.cache:
-            print(i)
-            print("__________________________")
+
 
     def __gradient_descent(self):
         dA = 2 * (self.cache[-1][1] - self.Y) # Derivative of MSE function is literally just 2 * (Y - Yhat)
-        for l in range(self.n - 1, -1, -1): # Backprop Step :D
+        for l in range(self.n - 1, 0, -1): # Backprop Step :D
             dZ = dA * self.gprime[l](self.cache[l][0])
             dW = (1/self.m) * np.dot(dZ, self.cache[l-1][1].T)
             dB = (1/self.m) * np.sum(dZ, axis=1, keepdims=True)
-            self.W[l] = self.W[l] - (self.lr * dW) # Updating weight matrix
-            self.b[l] = self.b[l] - (self.lr * dB) # Updating biases
-            dA = np.dot(self.W[l].T, dZ)
+            self.W[l-1] = self.W[l-1] - (self.lr * dW) # Updating weight matrix
+            self.b[l-1] = self.b[l-1] - (self.lr * dB) # Updating biases
+            dA = np.dot(self.W[l-1].T, dZ)
 
     def train(self):
         for epoch in range(self.epochs):
