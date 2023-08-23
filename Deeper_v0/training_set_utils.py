@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import numpy as np
 
+
 def character_ages():
     character_df = pd.read_excel("MoreCharacterInfo.xlsx")
     ages = character_df["Age"].values.tolist()

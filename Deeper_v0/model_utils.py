@@ -3,8 +3,6 @@ from numpy.random import uniform as u
 from math import sqrt
 
 
-def id(x): return x
-
 class NeuralNetwork:
     # lr        =   Learning Rate
     # n_sizes   =   Size of each layer in neurons, passed as a list. Includes the
@@ -21,13 +19,11 @@ class NeuralNetwork:
         #           for row in range(n_sizes[i])]) for i in range(1, self.layers)]
 
         # Xavier/Glorot Initialisation
+
         self.W = []
         for l in range(1, self.n):
             xgb = sqrt(6)/sqrt(n_sizes[l] + n_sizes[l-1])
             self.W.append(np.array([u(-xgb, xgb, n_sizes[l-1]) for _ in range(n_sizes[l])]))
-
-        #for matrix in self.W:
-            #print(np.shape(matrix))
 
         self.b = [np.array([[0] for _ in range(n_sizes[i])]) for i in range(1, self.n)]
         self.lr = lr
@@ -39,9 +35,9 @@ class NeuralNetwork:
         self.cost = 0
         if g is None:
             self.g = [np.tanh for _ in range(self.n - 1)]
-            self.g.append(id)
-            self.gprime = [lambda x : 1 - np.tanh(x)**2 for _ in range(self.n - 1)]
-            self.gprime.append(lambda x : 1)
+            self.g.append(lambda x: x)
+            self.gprime = [lambda x: 1 - np.tanh(x)**2 for _ in range(self.n - 1)]
+            self.gprime.append(lambda x: 1)
         else:
             self.g = g
             self.gprime = gprime
@@ -49,7 +45,6 @@ class NeuralNetwork:
             self.epochs = 100
         else:
             self.epochs = epochs
-
 
     def __mse_cost(self):
         self.cost = np.sum((self.cache[-1][1] - self.Y)**2)/self.m
@@ -61,15 +56,14 @@ class NeuralNetwork:
             A = self.g[l](Z)
             self.cache[l]= [Z, A]
 
-
     def __gradient_descent(self):
-        dA = 2 * (self.cache[-1][1] - self.Y) # Derivative of MSE function is literally just 2 * (Y - Yhat)
-        for l in range(self.n - 1, 0, -1): # Backprop Step :D
+        dA = 2 * (self.cache[-1][1] - self.Y)  # Derivative of MSE function is literally just 2 * (Y - Yhat)
+        for l in range(self.n - 1, 0, -1):  # Backprop Step :D
             dZ = dA * self.gprime[l](self.cache[l][0])
             dW = (1/self.m) * np.dot(dZ, self.cache[l-1][1].T)
             dB = (1/self.m) * np.sum(dZ, axis=1, keepdims=True)
-            self.W[l-1] = self.W[l-1] - (self.lr * dW) # Updating weight matrix
-            self.b[l-1] = self.b[l-1] - (self.lr * dB) # Updating biases
+            self.W[l-1] = self.W[l-1] - (self.lr * dW)  # Updating weight matrix
+            self.b[l-1] = self.b[l-1] - (self.lr * dB)  # Updating biases
             dA = np.dot(self.W[l-1].T, dZ)
 
     def train(self):
