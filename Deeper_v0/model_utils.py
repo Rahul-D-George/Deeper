@@ -39,3 +39,6 @@ class NeuralNetwork:
             z = np.dot(self.w[l], a)
             a = self.g[l](z)
             self.cache[l].append([z, a])
+
+    def back_prop(self):
+        return None
