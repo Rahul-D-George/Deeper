@@ -29,6 +29,7 @@ class NeuralNetwork:
         self.X = np.array(train_data[0])
         self.Y = np.array(train_data[1])
         self.cache = [[] for _ in range(self.n)]
+        self.cache[0][1] = self.X
         self.m = len(self.Y)
         self.cost = 0
         if g is None:
@@ -51,11 +52,12 @@ class NeuralNetwork:
             self.cache[l].append([Z, A])
 
     def __gradient_descent(self):
-        dA = 2 * (self.cache[-1][1] - self.Y)
-        for l in range(self.n - 1, 0, -1):
-            dZ = dA * self.gprime(self.cache[l][0])
+        dA = 2 * (self.cache[-1][1] - self.Y) # Derivative of MSE function is literally just 2 * (Y - Yhat)
+        for l in range(self.n - 1, -1, -1): # Backprop Step :D
+            dZ = dA * self.gprime[l](self.cache[l][0])
             dW = (1/self.m) * np.dot(dZ, self.cache[l-1][1].T)
             dB = (1/self.m) * np.sum(dZ, axis=1, keepdims=True)
-            self.W[l] = self.W[l] - (self.lr * dW)
-            self.b[l] = self.b[l] - (self.lr * dB)
+            self.W[l] = self.W[l] - (self.lr * dW) # Updating weight matrix
+            self.b[l] = self.b[l] - (self.lr * dB) # Updating biases
             dA = np.dot(self.W[l].T, dZ)
+
