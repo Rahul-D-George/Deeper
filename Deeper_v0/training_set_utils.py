@@ -21,6 +21,7 @@ def training_set_create(args=None):
             image_data.append(np.array(rgb_array))
         image_data = np.array(image_data)
         image_data = image_data.reshape(len(base_names), 185*185*3).T
+        image_data = image_data/255
         return [image_data, character_ages()]
     else:
         # Currently does nothing

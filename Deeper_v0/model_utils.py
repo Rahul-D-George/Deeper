@@ -4,6 +4,10 @@ from math import sqrt
 
 
 class NeuralNetwork:
+
+    def tanh_derivative(self, x):
+        return 1 - np.tanh(x)**2
+
     # lr        =   Learning Rate
     # n_sizes   =   Size of each layer in neurons, passed as a list. Includes the
     #               number of inputs. E.g.: [3, 4, 3, 2, 1]
@@ -13,10 +17,6 @@ class NeuralNetwork:
         assert n_sizes[0] == len(train_data[0])
         assert n_sizes[-1] == 1
         self.n = len(n_sizes)
-
-        # True random initialisation
-        # self.w = [np.array([[rd() for column in range(n_sizes[i - 1])]
-        #           for row in range(n_sizes[i])]) for i in range(1, self.layers)]
 
         # Xavier/Glorot Initialisation
 
@@ -36,7 +36,7 @@ class NeuralNetwork:
         if g is None:
             self.g = [np.tanh for _ in range(self.n - 1)]
             self.g.append(lambda x: x)
-            self.gprime = [lambda x: 1 - np.tanh(x)**2 for _ in range(self.n - 1)]
+            self.gprime = [self.tanh_derivative for _ in range(self.n - 1)]
             self.gprime.append(lambda x: 1)
         else:
             self.g = g
@@ -52,18 +52,18 @@ class NeuralNetwork:
     def __forward_prop(self):
         A = self.X
         for l in range(1, self.n):
-            Z = np.dot(self.W[l-1], A)
+            Z = np.dot(self.W[l-1], A) + self.b[l-1]
             A = self.g[l](Z)
-            self.cache[l]= [Z, A]
+            self.cache[l] = [Z, A]
 
     def __gradient_descent(self):
-        dA = 2 * (self.cache[-1][1] - self.Y)  # Derivative of MSE function is literally just 2 * (Y - Yhat)
-        for l in range(self.n - 1, 0, -1):  # Backprop Step :D
+        dA = 2 * (self.cache[-1][1] - self.Y)
+        for l in range(self.n - 1, 0, -1):
             dZ = dA * self.gprime[l](self.cache[l][0])
             dW = (1/self.m) * np.dot(dZ, self.cache[l-1][1].T)
             dB = (1/self.m) * np.sum(dZ, axis=1, keepdims=True)
-            self.W[l-1] = self.W[l-1] - (self.lr * dW)  # Updating weight matrix
-            self.b[l-1] = self.b[l-1] - (self.lr * dB)  # Updating biases
+            self.W[l-1] = self.W[l-1] - (self.lr * dW)
+            self.b[l-1] = self.b[l-1] - (self.lr * dB)
             dA = np.dot(self.W[l-1].T, dZ)
 
     def train(self):
@@ -72,3 +72,10 @@ class NeuralNetwork:
             self.__mse_cost()
             self.__gradient_descent()
             print(f"Epoch {epoch + 1}: Cost = {self.cost}")
+
+    def predict(self):
+        rate = 0
+        for i in range(len(self.Y)):
+            if self.cache[-1][1][i] == self.Y[i]:
+                rate +=1
+        print(f"Accuracy on training set: {rate/len(self.Y)}")
