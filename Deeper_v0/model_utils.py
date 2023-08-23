@@ -9,7 +9,7 @@ class NeuralNetwork:
     #               number of inputs. E.g.: [3, 4, 3, 2, 1]
     # w, b      =   Arrays of parameters for each layer, i.e: b[3] corresponds to b for layer 3.
     # cache     =   Used to store Z[l] and A[l] in a (n, 2) array. DOES NOT INCLUDE A0.
-    def __init__(self, n_sizes, lr, train_data, g=None):
+    def __init__(self, n_sizes, lr, train_data, g=None, gprime=None):
         assert n_sizes[0] == len(train_data[0][0])
         assert n_sizes[-1] == 1
         self.n = len(n_sizes)
@@ -30,24 +30,32 @@ class NeuralNetwork:
         self.Y = np.array(train_data[1])
         self.cache = [[] for _ in range(self.n)]
         self.m = len(self.Y)
+        self.cost = 0
         if g is None:
             self.g = [np.tanh for _ in range(self.n - 1)]
             self.g.append(np.identity_)
+            self.gprime = [lambda x : 1 - np.tanh(x)**2 for _ in range(self.n - 1)]
+            self.gprime.append(np.identity_)
         else:
             self.g = g
+            self.gprime = gprime
 
-    def forward_prop(self):
+    def __mse_cost(self):
+        self.cost = np.sum((self.cache[-1][1] - self.Y)**2)/self.m
+
+    def __forward_prop(self):
         A = self.X
         for l in range(1, self.n):
             Z = np.dot(self.W[l], A)
             A = self.g[l](Z)
             self.cache[l].append([Z, A])
 
-
-    def gradient_descent(self):
-
-    def back_prop(self):
-        dA = dZ = 1  # We are using a linear activation function in the final layer.
-        Atprev = self.cache[-1][1]
+    def __gradient_descent(self):
+        dA = 2 * (self.cache[-1][1] - self.Y)
         for l in range(self.n - 1, 0, -1):
-            dZ = dA *
+            dZ = dA * self.gprime(self.cache[l][0])
+            dW = (1/self.m) * np.dot(dZ, self.cache[l-1][1].T)
+            dB = (1/self.m) * np.sum(dZ, axis=1, keepdims=True)
+            self.W[l] = self.W[l] - (self.lr * dW)
+            self.b[l] = self.b[l] - (self.lr * dB)
+            dA = np.dot(self.W[l].T, dZ)
