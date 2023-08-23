@@ -16,7 +16,7 @@ def training_set_create(args=None):
         image_data = []
         for image in dir_image_names:
             image_data.append(Image.open(image))
-        return list(zip(image_data, character_ages()))
+        return [image_data, character_ages()]
     else:
         # Currently does nothing
         return None
