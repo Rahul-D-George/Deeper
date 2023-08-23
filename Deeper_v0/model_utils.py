@@ -3,6 +3,8 @@ from numpy.random import uniform as u
 from math import sqrt
 
 
+def id(x): return x
+
 class NeuralNetwork:
     # lr        =   Learning Rate
     # n_sizes   =   Size of each layer in neurons, passed as a list. Includes the
@@ -31,15 +33,15 @@ class NeuralNetwork:
         self.lr = lr
         self.X = np.array(train_data[0])
         self.Y = np.array(train_data[1])
-        self.cache = [[None, None] for _ in range(self.n)]
+        self.cache = [[np.array([]), np.array([])] for _ in range(self.n)]
         self.cache[0][1] = self.X
         self.m = len(self.Y)
         self.cost = 0
         if g is None:
             self.g = [np.tanh for _ in range(self.n - 1)]
-            self.g.append(np.identity)
+            self.g.append(id)
             self.gprime = [lambda x : 1 - np.tanh(x)**2 for _ in range(self.n - 1)]
-            self.gprime.append(np.identity)
+            self.gprime.append(id)
         else:
             self.g = g
             self.gprime = gprime
@@ -55,10 +57,17 @@ class NeuralNetwork:
     def __forward_prop(self):
         A = self.X
         for l in range(1, self.n):
+            print(f"\nCACHE CREATION")
+            print(f"Creating cache for layer {l}")
             Z = np.dot(self.W[l-1], A)
-            print(f"Current shape of ")
+            print(f"Successfully created Z matrix.\nAttempting to create A matrix using {self.g[l]}")
             A = self.g[l](Z)
-            self.cache[l].append([Z, A])
+            print(f"Current shape of Z: {np.shape(A)}\nCurrent shape of A: {np.shape(Z)}")
+            self.cache[l]= [Z, A]
+        print("\nNOW SUGGESTING CACHE FORMS")
+        for i in self.cache:
+            print(i)
+            print("__________________________")
 
     def __gradient_descent(self):
         dA = 2 * (self.cache[-1][1] - self.Y) # Derivative of MSE function is literally just 2 * (Y - Yhat)
