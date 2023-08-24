@@ -5,9 +5,6 @@ from _collections import defaultdict
 
 class NeuralNetwork:
 
-    def tanh_derivative(self, x):
-        return 1 - np.tanh(x) ** 2
-
     # lr        =   Learning Rate
     # n_sizes   =   Size of each layer in neurons, passed as a list. Includes the
     #               number of inputs. E.g.: [3, 4, 3, 2, 1]
