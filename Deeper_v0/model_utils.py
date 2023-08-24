@@ -79,3 +79,30 @@ class NeuralNetwork:
             if self.cache[-1][1][i] == self.Y[i]:
                 rate +=1
         print(f"Accuracy on training set: {rate/len(self.Y)}")
+
+class NeuralNetworkStructured:
+    def __int__(self):
+        self.exists = True
+        self.parameters = {}
+
+    # Function to randomly initialise L-layer DNN weights and biases.
+
+    def initialize_parameters_deep(self, layer_dims):
+        np.random.seed(3)
+        L = len(layer_dims)
+        for l in range(1, L):
+            self.parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1]) * 0.01
+            self.parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
+            assert (self.parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
+            assert (self.parameters['b' + str(l)].shape == (layer_dims[l], 1))
+
+    def fprop_z_calc(self, A, W, b):
+        Z = np.dot(W, A) + b
+        cache = (A, W, b)
+        return Z, cache
+
+    def fprop_a_calc(self, A_prev, W, b, activation):
+        Z, linearcache = self.fprop_z_calc(A_prev, W, b)
+        A, activationcache = activation(Z), Z
+        cache = (linearcache, activationcache)
+        return
