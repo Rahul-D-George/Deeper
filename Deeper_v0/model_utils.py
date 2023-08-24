@@ -28,6 +28,7 @@ class NeuralNetwork:
         self.m = len(self.Y)
         self.final_activation = np.empty(np.shape(self.Y))
         self.cost = 0
+        self.gradients = {}
         if epochs is None:
             self.epochs = 100
         else:
@@ -66,18 +67,28 @@ class NeuralNetwork:
         caches.append(finalC)
         self.caches = caches
 
+    def __backward_prop_calcs(self, cachen, layern, backwards_func, dA):
+        lcache, acache = self.caches[cachen]
+        dZ = dA * backwards_func(acache)
+        A, W, b = lcache
+        m = A.shape[1]
+        dW = np.dot(dZ, (A.T)) / m
+        db = np.sum(dZ, axis=1, keepdims=True) / m
+        dA = np.dot(W.T, dZ)
+        self.gradients["dA" + str(layern-1)] = dA
+        self.gradients["dW" + str(layern)] = dW
+        self.gradients["db" + str(layern)] = db
+
 
     def __gradient_descent(self):
-        dA = 2 * (self.cache[-1][1] - self.Y)
-        for l in range(self.n - 1, 0, -1):
-            dZ = dA * self.gprime[l](self.cache[l][0])
-            dW = (1 / self.m) * np.dot(dZ, self.cache[l - 1][1].T)
-            dB = (1 / self.m) * np.sum(dZ, axis=1, keepdims=True)
-            W = self.params["W"+str(l)]
-            b = self.params["b"+str(l)]
-            self.params["W"+str(l)] = W - (self.lr * dW)
-            self.params["b"+str(l)] = b - (self.lr * dB)
-            dA = np.dot(W.T, dZ)
+        final_derivative = -2 * (self.final_activation - self.Y)
+        linear_deriv = lambda x : 1
+        self.__backward_prop_calcs(-1, self.n, linear_deriv, final_derivative)
+
+        tanh_deriv = lambda x : 1 - np.tanh(x)**2
+        for l in range(self.n - 2, -1, -1):
+            self.__backward_prop_calcs(l, l+1, tanh_deriv, self.gradients["dA"+str(l+1)])
+
 
     def train(self):
         for epoch in range(self.epochs):
@@ -110,7 +121,8 @@ class NeuralNetworkStructured:
             assert (self.parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
             assert (self.parameters['b' + str(l)].shape == (layer_dims[l], 1))
 
-    def fprop_z_calc(self, A, W, b):
+    @staticmethod
+    def fprop_z_calc(A, W, b):
         Z = np.dot(W, A) + b
         cache = (A, W, b)
         return Z, cache
@@ -137,9 +149,48 @@ class NeuralNetworkStructured:
         caches.append(cache)
         return AL, caches
 
-    def compute_cost(self, AL, Y):
+    @staticmethod
+    def compute_cost(AL, Y):
         m = Y.shape[1]
         cost = (-1 / m) * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL))
         cost = np.squeeze(cost)
         return cost
 
+    @staticmethod
+    def linear_backward(dZ, cache):
+        A_prev, W, b = cache
+        m = A_prev.shape[1]
+        dW = np.dot(dZ, (A_prev.T)) / m
+        db = np.sum(dZ, axis=1, keepdims=True) / m
+        dA_prev = np.dot(W.T, dZ)
+        return dA_prev, dW, db
+
+    @staticmethod
+    def linear_activation_backward(self, dA, cache, backtivation):
+        linear_cache, activation_cache = cache
+        dZ = backtivation(dA, activation_cache)
+        dA_prev, dW, db = self.linear_backward(dZ, linear_cache)
+        return dA_prev, dW, db
+
+    @staticmethod
+    def L_model_backward(self, AL, Y, caches):
+
+        grads = {}
+        L = len(caches)  # the number of layers
+        Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
+
+        dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
+
+        current_cache = caches[L - 1]
+        dA_prev_temp, dW_temp, db_temp = self.linear_activation_backward(dAL, current_cache, "sigmoid")
+        grads["dA" + str(L - 1)] = dA_prev_temp
+        grads["dW" + str(L)] = dW_temp
+        grads["db" + str(L)] = db_temp
+
+        for l in reversed(range(L - 1)):
+            current_cache = caches[l]
+            dA_prev_temp, dW_temp, db_temp = self.linear_activation_backward(dA_prev_temp, current_cache, "relu")
+            grads["dA" + str(l)] = dA_prev_temp
+            grads["dW" + str(l + 1)] = dW_temp
+            grads["db" + str(l + 1)] = db_temp
+        return grads
