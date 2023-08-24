@@ -42,6 +42,17 @@ class NeuralNetwork:
         #     self.g = g
         #     self.gprime = gprime
 
+    #def __sparse_categorical_cross_entropy(self):
+    #    print(np.shape(self.Y), np.shape(self.final_activation))
+    #    batch_size = self.Y.shape[0]
+    #    self.cost = -np.sum(np.log(self.final_activation[np.arange(batch_size), self.Y])) / batch_size
+
+    #def __sparse_categorical_cross_entropy_gradient(self):
+    #    batch_size = self.Y.shape[0]
+    #    grad = np.zeros_like(self.final_activation)
+    #    grad[np.arange(batch_size), self.Y] = -1 / self.final_activation[np.arange(batch_size), self.Y]
+    #    return grad / batch_size
+
     def __mse_cost(self):
         self.cost = np.sum((self.final_activation - self.Y) ** 2) / self.m
 
@@ -53,16 +64,16 @@ class NeuralNetwork:
     def __forward_prop(self):
         caches = []
         A = self.X
-        for l in range(1, self.n):
+        for l in range(1, self.n-1):
             W = self.params["W" + str(l)]
             b = self.params["b" + str(l)]
             A_prev = A
             tanh = lambda x: np.tanh(x)
             A, cache = self.__forward_prop_calcs(A_prev, W, b, tanh)
             caches.append(cache)
-        Wn = self.params["W" + str(self.n)]
-        bn = self.params["b" + str(self.n)]
-        linear = lambda x : np.identity(x)
+        Wn = self.params["W" + str(self.n-1)]
+        bn = self.params["b" + str(self.n-1)]
+        linear = lambda x : x
         self.final_activation, finalC = self.__forward_prop_calcs(A, Wn, bn, linear)
         caches.append(finalC)
         self.caches = caches
@@ -80,15 +91,30 @@ class NeuralNetwork:
         self.gradients["db" + str(layern)] = db
 
     def __gradient_descent(self):
-        final_derivative = -2 * (self.final_activation - self.Y)
+        final_derivative = 2 * (self.final_activation - self.Y)    # This is dA4
         linear_deriv = lambda x : 1
-        self.__backward_prop_calcs(-1, self.n, linear_deriv, final_derivative)
+        lcache, acache = self.caches[-1]
+        dZ = final_derivative * linear_deriv(acache)                # We use it to calculate dZ4
+        A, W, b = lcache                                            # From our cache, we get W4, b4, and A3
+        m = A.shape[1]                                              # We see how many columns A3 had for calculating
+        dW = np.dot(dZ, (A.T)) / m                                  # We calculate dW4
+        db = np.sum(dZ, axis=1, keepdims=True) / m                  # We calculate db4
+        dA = np.dot(W.T, dZ)                                        # BACKPROP STEP - we calculate dA3
+        self.gradients["dW" + str(self.n-1)] = dW                   # We add dW4 and db4 to scale our parameters later.
+        self.gradients["db" + str(self.n-1)] = db
+        tanh_deriv = lambda x : 1 - np.tanh(x)**2                   # 1ST ITERATION
+        for l in range(len(self.caches)-2, -1, -1):                 # We want to start with our first unaccessed cache.
+            lcache, acache = self.caches[l]                         # We extract the separate caches
+            dZ = dA * tanh_deriv(acache)                            # We use dA3 and Z3 to calculate dZ3
+            A, W, b = lcache                                        # We retrieve A2, W3 and b3.
+            m = A.shape[1]                                          # Same as before.
+            dW = np.dot(dZ, (A.T)) / m                              # We calculate dW3
+            db = np.sum(dZ, axis=1, keepdims=True) / m              # We calculate db3
+            dA = np.dot(W.T, dZ)                                    # We calculate dA2
+            self.gradients["dW" + str(l+1)] = dW
+            self.gradients["db" + str(l+1)] = db
 
-        tanh_deriv = lambda x : 1 - np.tanh(x)**2
-        for l in range(self.n - 2, -1, -1):
-            self.__backward_prop_calcs(l, l+1, tanh_deriv, self.gradients["dA"+str(l+1)])
-
-        for l in range(self.n):
+        for l in range(self.n-1):
             self.params["W" + str(l+1)] = self.params["W" + str(l+1)] - self.gradients["dW" + str(l+1)] * self.lr
             self.params["b" + str(l+1)] = self.params["b" + str(l+1)] - self.gradients["db" + str(l+1)] * self.lr
 
@@ -98,6 +124,7 @@ class NeuralNetwork:
             self.__mse_cost()
             self.__gradient_descent()
             print(f"Epoch {epoch + 1}: Cost = {self.cost}")
+            print(f"Final Activations: {self.final_activation}\n\n")
 
     def predict(self):
         return 0
