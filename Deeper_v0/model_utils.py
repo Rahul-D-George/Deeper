@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.random import uniform as u
 from math import sqrt
-
+from _collections import defaultdict
 
 class NeuralNetwork:
 
@@ -19,13 +19,15 @@ class NeuralNetwork:
         self.n = len(n_sizes)
 
         # Xavier/Glorot Initialisation
-
-        self.W = []
+        self.params = {}
+        #self.W = []
         for l in range(1, self.n):
             xgb = sqrt(6) / sqrt(n_sizes[l] + n_sizes[l - 1])
-            self.W.append(np.array([u(-xgb, xgb, n_sizes[l - 1]) for _ in range(n_sizes[l])]))
+            self.params["W"+str(l)] = np.array([u(-xgb, xgb, n_sizes[l - 1]) for _ in range(n_sizes[l])])
+            self.params["b"+str(l)] = np.zeros((n_sizes[l], 1))
+            #self.W.append(np.array([u(-xgb, xgb, n_sizes[l - 1]) for _ in range(n_sizes[l])]))
 
-        self.b = [np.array([[0] for _ in range(n_sizes[i])]) for i in range(1, self.n)]
+        #self.b = [np.array([[0] for _ in range(n_sizes[i])]) for i in range(1, self.n)]
         self.lr = lr
         self.X = np.array(train_data[0])
         self.Y = np.array(train_data[1])
@@ -52,7 +54,9 @@ class NeuralNetwork:
     def __forward_prop(self):
         A = self.X
         for l in range(1, self.n):
-            Z = np.dot(self.W[l - 1], A) + self.b[l - 1]
+            W = self.params["W" + str(l)]
+            b = self.params["b" + str(l)]
+            Z = np.dot(W, A) + b
             A = self.g[l](Z)
             self.cache[l] = [Z, A]
 
@@ -62,9 +66,11 @@ class NeuralNetwork:
             dZ = dA * self.gprime[l](self.cache[l][0])
             dW = (1 / self.m) * np.dot(dZ, self.cache[l - 1][1].T)
             dB = (1 / self.m) * np.sum(dZ, axis=1, keepdims=True)
-            self.W[l - 1] = self.W[l - 1] - (self.lr * dW)
-            self.b[l - 1] = self.b[l - 1] - (self.lr * dB)
-            dA = np.dot(self.W[l - 1].T, dZ)
+            W = self.params["W"+str(l)]
+            b = self.params["b"+str(l)]
+            self.params["W"+str(l)] = W - (self.lr * dW)
+            self.params["b"+str(l)] = b - (self.lr * dB)
+            dA = np.dot(W.T, dZ)
 
     def train(self):
         for epoch in range(self.epochs):
@@ -123,3 +129,10 @@ class NeuralNetworkStructured:
         AL, cache = self.fprop_a_calc(A, parameters["W" + str(L)], parameters["b" + str(L)], linear)
         caches.append(cache)
         return AL, caches
+
+    def compute_cost(self, AL, Y):
+        m = Y.shape[1]
+        cost = (-1 / m) * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL))
+        cost = np.squeeze(cost)
+        return cost
+
