@@ -12,7 +12,7 @@ class NeuralNetwork:
     # caches     =   Used to store A and Z caches as a list of tuples.
     def __init__(self, n_sizes, lr, train_data, g=None, gprime=None, epochs=None):
         assert n_sizes[0] == len(train_data[0])
-        assert n_sizes[-1] == 1
+        assert n_sizes[-1] == 30
         self.n = len(n_sizes)
 
         # Xavier/Glorot Initialisation
@@ -125,102 +125,3 @@ class NeuralNetwork:
             self.__gradient_descent()
             print(f"Epoch {epoch + 1}: Cost = {self.cost}")
             print(f"Final Activations: {self.final_activation}\n\n")
-
-    def predict(self):
-        return 0
-        #rate = 0
-        #for i in range(len(self.Y)):
-        #    if self.final_activation == self.Y[i]:
-        #        rate += 1
-        #print(f"Accuracy on training set: {rate / len(self.Y)}")
-
-
-class NeuralNetworkStructured:
-    def __int__(self):
-        self.exists = True
-        self.parameters = {}
-
-    # Function to randomly initialise L-layer DNN weights and biases.
-
-    def initialize_parameters_deep(self, layer_dims):
-        np.random.seed(3)
-        L = len(layer_dims)
-        for l in range(1, L):
-            self.parameters['W' + str(l)] = np.random.randn(layer_dims[l], layer_dims[l - 1]) * 0.01
-            self.parameters['b' + str(l)] = np.zeros((layer_dims[l], 1))
-            assert (self.parameters['W' + str(l)].shape == (layer_dims[l], layer_dims[l - 1]))
-            assert (self.parameters['b' + str(l)].shape == (layer_dims[l], 1))
-
-    @staticmethod
-    def fprop_z_calc(A, W, b):
-        Z = np.dot(W, A) + b
-        cache = (A, W, b)
-        return Z, cache
-
-    def fprop_a_calc(self, A_prev, W, b, activation):
-        Z, linearcache = self.fprop_z_calc(A_prev, W, b)
-        A, activationcache = activation(Z), Z
-        cache = (linearcache, activationcache)
-        return A, cache
-
-    def L_model_forward(self, X, parameters):
-        caches = []
-        A = X
-        L = len(parameters) // 2
-        for l in range(1, L):
-            W = parameters["W" + str(l)]
-            b = parameters["b" + str(l)]
-            A_prev = A
-            tanh = lambda x: np.tanh(x)
-            A, cache = self.fprop_a_calc(self, A_prev, W, b, tanh)
-            caches.append(cache)
-        linear = lambda x : x
-        AL, cache = self.fprop_a_calc(A, parameters["W" + str(L)], parameters["b" + str(L)], linear)
-        caches.append(cache)
-        return AL, caches
-
-    @staticmethod
-    def compute_cost(AL, Y):
-        m = Y.shape[1]
-        cost = (-1 / m) * np.sum(Y * np.log(AL) + (1 - Y) * np.log(1 - AL))
-        cost = np.squeeze(cost)
-        return cost
-
-    @staticmethod
-    def linear_backward(dZ, cache):
-        A_prev, W, b = cache
-        m = A_prev.shape[1]
-        dW = np.dot(dZ, (A_prev.T)) / m
-        db = np.sum(dZ, axis=1, keepdims=True) / m
-        dA_prev = np.dot(W.T, dZ)
-        return dA_prev, dW, db
-
-    @staticmethod
-    def linear_activation_backward(self, dA, cache, backtivation):
-        linear_cache, activation_cache = cache
-        dZ = backtivation(dA, activation_cache)
-        dA_prev, dW, db = self.linear_backward(dZ, linear_cache)
-        return dA_prev, dW, db
-
-    @staticmethod
-    def L_model_backward(self, AL, Y, caches):
-
-        grads = {}
-        L = len(caches)  # the number of layers
-        Y = Y.reshape(AL.shape)  # after this line, Y is the same shape as AL
-
-        dAL = - (np.divide(Y, AL) - np.divide(1 - Y, 1 - AL))
-
-        current_cache = caches[L - 1]
-        dA_prev_temp, dW_temp, db_temp = self.linear_activation_backward(dAL, current_cache, "sigmoid")
-        grads["dA" + str(L - 1)] = dA_prev_temp
-        grads["dW" + str(L)] = dW_temp
-        grads["db" + str(L)] = db_temp
-
-        for l in reversed(range(L - 1)):
-            current_cache = caches[l]
-            dA_prev_temp, dW_temp, db_temp = self.linear_activation_backward(dA_prev_temp, current_cache, "relu")
-            grads["dA" + str(l)] = dA_prev_temp
-            grads["dW" + str(l + 1)] = dW_temp
-            grads["db" + str(l + 1)] = db_temp
-        return grads
