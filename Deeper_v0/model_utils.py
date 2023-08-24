@@ -6,7 +6,7 @@ from math import sqrt
 class NeuralNetwork:
 
     def tanh_derivative(self, x):
-        return 1 - np.tanh(x)**2
+        return 1 - np.tanh(x) ** 2
 
     # lr        =   Learning Rate
     # n_sizes   =   Size of each layer in neurons, passed as a list. Includes the
@@ -22,8 +22,8 @@ class NeuralNetwork:
 
         self.W = []
         for l in range(1, self.n):
-            xgb = sqrt(6)/sqrt(n_sizes[l] + n_sizes[l-1])
-            self.W.append(np.array([u(-xgb, xgb, n_sizes[l-1]) for _ in range(n_sizes[l])]))
+            xgb = sqrt(6) / sqrt(n_sizes[l] + n_sizes[l - 1])
+            self.W.append(np.array([u(-xgb, xgb, n_sizes[l - 1]) for _ in range(n_sizes[l])]))
 
         self.b = [np.array([[0] for _ in range(n_sizes[i])]) for i in range(1, self.n)]
         self.lr = lr
@@ -47,12 +47,12 @@ class NeuralNetwork:
             self.epochs = epochs
 
     def __mse_cost(self):
-        self.cost = np.sum((self.cache[-1][1] - self.Y)**2)/self.m
+        self.cost = np.sum((self.cache[-1][1] - self.Y) ** 2) / self.m
 
     def __forward_prop(self):
         A = self.X
         for l in range(1, self.n):
-            Z = np.dot(self.W[l-1], A) + self.b[l-1]
+            Z = np.dot(self.W[l - 1], A) + self.b[l - 1]
             A = self.g[l](Z)
             self.cache[l] = [Z, A]
 
@@ -60,11 +60,11 @@ class NeuralNetwork:
         dA = 2 * (self.cache[-1][1] - self.Y)
         for l in range(self.n - 1, 0, -1):
             dZ = dA * self.gprime[l](self.cache[l][0])
-            dW = (1/self.m) * np.dot(dZ, self.cache[l-1][1].T)
-            dB = (1/self.m) * np.sum(dZ, axis=1, keepdims=True)
-            self.W[l-1] = self.W[l-1] - (self.lr * dW)
-            self.b[l-1] = self.b[l-1] - (self.lr * dB)
-            dA = np.dot(self.W[l-1].T, dZ)
+            dW = (1 / self.m) * np.dot(dZ, self.cache[l - 1][1].T)
+            dB = (1 / self.m) * np.sum(dZ, axis=1, keepdims=True)
+            self.W[l - 1] = self.W[l - 1] - (self.lr * dW)
+            self.b[l - 1] = self.b[l - 1] - (self.lr * dB)
+            dA = np.dot(self.W[l - 1].T, dZ)
 
     def train(self):
         for epoch in range(self.epochs):
@@ -77,8 +77,9 @@ class NeuralNetwork:
         rate = 0
         for i in range(len(self.Y)):
             if self.cache[-1][1][i] == self.Y[i]:
-                rate +=1
-        print(f"Accuracy on training set: {rate/len(self.Y)}")
+                rate += 1
+        print(f"Accuracy on training set: {rate / len(self.Y)}")
+
 
 class NeuralNetworkStructured:
     def __int__(self):
@@ -105,4 +106,20 @@ class NeuralNetworkStructured:
         Z, linearcache = self.fprop_z_calc(A_prev, W, b)
         A, activationcache = activation(Z), Z
         cache = (linearcache, activationcache)
-        return
+        return A, cache
+
+    def L_model_forward(self, X, parameters):
+        caches = []
+        A = X
+        L = len(parameters) // 2
+        for l in range(1, L):
+            W = parameters["W" + str(l)]
+            b = parameters["b" + str(l)]
+            A_prev = A
+            tanh = lambda x: np.tanh(x)
+            A, cache = self.fprop_a_calc(self, A_prev, W, b, tanh)
+            caches.append(cache)
+        linear = lambda x : x
+        AL, cache = self.fprop_a_calc(A, parameters["W" + str(L)], parameters["b" + str(L)], linear)
+        caches.append(cache)
+        return AL, caches
