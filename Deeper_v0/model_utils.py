@@ -79,7 +79,6 @@ class NeuralNetwork:
         self.gradients["dW" + str(layern)] = dW
         self.gradients["db" + str(layern)] = db
 
-
     def __gradient_descent(self):
         final_derivative = -2 * (self.final_activation - self.Y)
         linear_deriv = lambda x : 1
@@ -89,6 +88,9 @@ class NeuralNetwork:
         for l in range(self.n - 2, -1, -1):
             self.__backward_prop_calcs(l, l+1, tanh_deriv, self.gradients["dA"+str(l+1)])
 
+        for l in range(self.n):
+            self.params["W" + str(l+1)] = self.params["W" + str(l+1)] - self.gradients["dW" + str(l+1)] * self.lr
+            self.params["b" + str(l+1)] = self.params["b" + str(l+1)] - self.gradients["db" + str(l+1)] * self.lr
 
     def train(self):
         for epoch in range(self.epochs):
@@ -98,11 +100,12 @@ class NeuralNetwork:
             print(f"Epoch {epoch + 1}: Cost = {self.cost}")
 
     def predict(self):
-        rate = 0
-        for i in range(len(self.Y)):
-            if self.cache[-1][1][i] == self.Y[i]:
-                rate += 1
-        print(f"Accuracy on training set: {rate / len(self.Y)}")
+        return 0
+        #rate = 0
+        #for i in range(len(self.Y)):
+        #    if self.final_activation == self.Y[i]:
+        #        rate += 1
+        #print(f"Accuracy on training set: {rate / len(self.Y)}")
 
 
 class NeuralNetworkStructured:
