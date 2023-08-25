@@ -17,7 +17,7 @@ Deep learning model and associated helper code to gather images of video-game ch
 
 **v0.4** - *Maybe* slightly optimistic, but do something with a CNN.
 
-##Linked Future Projects**
+##Linked Future Projects
 
 
 ???
