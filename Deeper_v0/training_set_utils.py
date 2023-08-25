@@ -7,7 +7,12 @@ import numpy as np
 def character_ages():
     character_df = pd.read_excel("MoreCharacterInfo.xlsx")
     ages = character_df["Age"].values.tolist()
-    return ages
+    num_categories = 33
+    ohl = np.zeros((len(ages), num_categories))
+    for i, age in enumerate(ages):
+        j = age
+        ohl[i, j] = 1
+    return ohl.T
 
 
 def training_set_create(args=None):

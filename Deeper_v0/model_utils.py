@@ -12,7 +12,6 @@ class NeuralNetwork:
     # caches     =   Used to store A and Z caches as a list of tuples.
     def __init__(self, n_sizes, lr, train_data, g=None, gprime=None, epochs=None):
         assert n_sizes[0] == len(train_data[0])
-        assert n_sizes[-1] == 50
         self.n = len(n_sizes)
 
         # Xavier/Glorot Initialisation
@@ -27,15 +26,15 @@ class NeuralNetwork:
         self.caches = [[]]
         self.m = len(self.Y)
         self.final_activation = np.empty(np.shape(self.Y))
-        self.cost = 0
+        self.acc = 0
         self.gradients = {}
         if epochs is None:
             self.epochs = 100
         else:
             self.epochs = epochs
 
-    def __mse_cost(self):
-        self.cost = np.sum((self.final_activation - self.Y) ** 2) / self.m
+    def __accuracy(self):
+        self.acc = np.sum((self.final_activation - self.Y) ** 2) / self.m
 
     @staticmethod
     def __forward_prop_calcs(A_prev, W, b, activation):
@@ -107,6 +106,6 @@ class NeuralNetwork:
     def train(self):
         for epoch in range(self.epochs):
             self.__forward_prop()
-            self.__mse_cost()
+            self.__accuracy()
             self.__gradient_descent()
-            print(f"Epoch {epoch + 1}: Cost = {self.cost}")
+            print(f"Epoch {epoch + 1}: Cost = {self.acc}")
