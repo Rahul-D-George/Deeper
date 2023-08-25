@@ -33,25 +33,6 @@ class NeuralNetwork:
             self.epochs = 100
         else:
             self.epochs = epochs
-        # if g is None:
-        #     self.g = [np.tanh for _ in range(self.n - 1)]
-        #     self.g.append(lambda x: x)
-        #     self.gprime = [self.tanh_derivative for _ in range(self.n - 1)]
-        #     self.gprime.append(lambda x: 1)
-        # else:
-        #     self.g = g
-        #     self.gprime = gprime
-
-    #def __sparse_categorical_cross_entropy(self):
-    #    print(np.shape(self.Y), np.shape(self.final_activation))
-    #    batch_size = self.Y.shape[0]
-    #    self.cost = -np.sum(np.log(self.final_activation[np.arange(batch_size), self.Y])) / batch_size
-
-    #def __sparse_categorical_cross_entropy_gradient(self):
-    #    batch_size = self.Y.shape[0]
-    #    grad = np.zeros_like(self.final_activation)
-    #    grad[np.arange(batch_size), self.Y] = -1 / self.final_activation[np.arange(batch_size), self.Y]
-    #    return grad / batch_size
 
     def __mse_cost(self):
         self.cost = np.sum((self.final_activation - self.Y) ** 2) / self.m
@@ -129,4 +110,3 @@ class NeuralNetwork:
             self.__mse_cost()
             self.__gradient_descent()
             print(f"Epoch {epoch + 1}: Cost = {self.cost}")
-            print(f"Final Activations: {self.final_activation}\n\n")
