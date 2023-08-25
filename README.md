@@ -4,7 +4,7 @@ Deep learning model and associated helper code to gather images of video-game ch
 > [!NOTE]
 > This is all entirely for fun, don't take it seriously.
 
-##Goals for Future Versions
+## Goals for Future Versions
 
 
 **v0.0** - Fully functional.
@@ -17,7 +17,7 @@ Deep learning model and associated helper code to gather images of video-game ch
 
 **v0.4** - *Maybe* slightly optimistic, but do something with a CNN.
 
-##Linked Future Projects
+## Linked Future Projects
 
 
 ???
