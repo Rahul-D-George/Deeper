@@ -12,7 +12,7 @@ class NeuralNetwork:
     # caches     =   Used to store A and Z caches as a list of tuples.
     def __init__(self, n_sizes, lr, train_data, g=None, gprime=None, epochs=None):
         assert n_sizes[0] == len(train_data[0])
-        assert n_sizes[-1] == 30
+        assert n_sizes[-1] == 50
         self.n = len(n_sizes)
 
         # Xavier/Glorot Initialisation
@@ -73,8 +73,8 @@ class NeuralNetwork:
             caches.append(cache)
         Wn = self.params["W" + str(self.n-1)]
         bn = self.params["b" + str(self.n-1)]
-        linear = lambda x : x
-        self.final_activation, finalC = self.__forward_prop_calcs(A, Wn, bn, linear)
+        softmax = lambda x: np.exp(x - np.max(x)) / np.exp(x - np.max(x)).sum(axis=0)
+        self.final_activation, finalC = self.__forward_prop_calcs(A, Wn, bn, softmax)
         caches.append(finalC)
         self.caches = caches
 
@@ -90,17 +90,22 @@ class NeuralNetwork:
         self.gradients["dW" + str(layern)] = dW
         self.gradients["db" + str(layern)] = db
 
+    @staticmethod
+    def softmax_deriv(Z):
+        softmax_probs = np.exp(Z) / np.sum(np.exp(Z), axis=0)
+        deriv = softmax_probs * (1 - softmax_probs)
+        return deriv
+
     def __gradient_descent(self):
-        final_derivative = 2 * (self.final_activation - self.Y)    # This is dA4
-        linear_deriv = lambda x : 1
+        final_activation_derivative = (self.final_activation - self.Y) / self.m
         lcache, acache = self.caches[-1]
-        dZ = final_derivative * linear_deriv(acache)                # We use it to calculate dZ4
-        A, W, b = lcache                                            # From our cache, we get W4, b4, and A3
-        m = A.shape[1]                                              # We see how many columns A3 had for calculating
-        dW = np.dot(dZ, (A.T)) / m                                  # We calculate dW4
-        db = np.sum(dZ, axis=1, keepdims=True) / m                  # We calculate db4
-        dA = np.dot(W.T, dZ)                                        # BACKPROP STEP - we calculate dA3
-        self.gradients["dW" + str(self.n-1)] = dW                   # We add dW4 and db4 to scale our parameters later.
+        dZ = final_activation_derivative * self.softmax_deriv(acache)
+        A, W, b = lcache
+        m = A.shape[1]
+        dW = np.dot(dZ, (A.T)) / m
+        db = np.sum(dZ, axis=1, keepdims=True) / m
+        dA = np.dot(W.T, dZ)
+        self.gradients["dW" + str(self.n-1)] = dW
         self.gradients["db" + str(self.n-1)] = db
         tanh_deriv = lambda x : 1 - np.tanh(x)**2                   # 1ST ITERATION
         for l in range(len(self.caches)-2, -1, -1):                 # We want to start with our first unaccessed cache.
