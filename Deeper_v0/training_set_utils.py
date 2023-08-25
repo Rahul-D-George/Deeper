@@ -31,3 +31,5 @@ def training_set_create(args=None):
     else:
         # Currently does nothing
         return None
+
+character_ages()

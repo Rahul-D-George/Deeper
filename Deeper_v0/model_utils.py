@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.random import uniform as u
 from math import sqrt
-from _collections import defaultdict
+from sklearn.metrics import accuracy_score
 
 class NeuralNetwork:
 
@@ -34,7 +34,10 @@ class NeuralNetwork:
             self.epochs = epochs
 
     def __accuracy(self):
-        self.acc = np.sum((self.final_activation - self.Y) ** 2) / self.m
+        print(np.shape(self.Y), np.shape(self.final_activation))
+        print(f"Final Activation: {self.final_activation}")
+        print(f"One-Hot Encoding of Values: {self.Y}")
+        self.acc = accuracy_score(self.Y, self.final_activation)
 
     @staticmethod
     def __forward_prop_calcs(A_prev, W, b, activation):
