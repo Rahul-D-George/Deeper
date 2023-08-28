@@ -7,7 +7,7 @@ Deep learning model and associated helper code to gather images of video-game ch
 ## Goals for Future Versions
 
 
-**v0.0.0** - Fully functional and working, binary classification for over or under 18 implemented
+**v0.0.0** - Fully functional and working, binary classification for over or under 18 implemented. Modularised successfuly as well.
 
 **v0.0.1** - Object oriented implementation of ```bin_class```
 
