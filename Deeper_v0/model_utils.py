@@ -100,6 +100,7 @@ class NeuralNetwork:
             dA = np.dot(W.T, dZ)                                    # We calculate dA2
             self.gradients["dW" + str(l+1)] = dW
             self.gradients["db" + str(l+1)] = db
+
         for l in range(self.n-1):
             self.params["W" + str(l+1)] = self.params["W" + str(l+1)] - self.gradients["dW" + str(l+1)] * self.lr
             self.params["b" + str(l+1)] = self.params["b" + str(l+1)] - self.gradients["db" + str(l+1)] * self.lr
