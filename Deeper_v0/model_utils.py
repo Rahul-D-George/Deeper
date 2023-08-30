@@ -17,6 +17,7 @@ class NeuralNetwork:
         for l in range(1, self.n):
             self.params['W' + str(l)] = np.random.randn(n_sizes[l], n_sizes[l - 1]) * 0.01
             self.params['b' + str(l)] = np.zeros((n_sizes[l], 1))
+
         # Xavier/Glo rot Initialisation - unimplemented for now.
         # self.params = {}
         # for l in range(1, self.n):
@@ -80,7 +81,7 @@ class NeuralNetwork:
 
         lcache, acache = self.caches[-1]
 
-        dZ = final_activation_derivative * self.gsp[-1](acache)
+        dZ = final_activation_derivative * self.gsp[-1](acache)     #
         A, W, b = lcache
         m = A.shape[1]
         dW = np.dot(dZ, (A.T)) / m
@@ -104,7 +105,6 @@ class NeuralNetwork:
             self.params["b" + str(l+1)] = self.params["b" + str(l+1)] - self.gradients["db" + str(l+1)] * self.lr
 
     def train(self):
-        print("NONMODEL")
         for epoch in range(0, self.epochs):
             self.__forward_prop()
             self.__cost()

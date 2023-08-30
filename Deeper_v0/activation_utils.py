@@ -19,11 +19,11 @@ def dsigmoid(x):
 
 
 def relu(x):
-    return max(0, x)
+    return np.maximum(0, x)
 
 
 def drelu(x):
-    return 0 if (x<=0) else 1
+    return np.where(x > 0, 1, 0)
 
 
 def softmax(x):
