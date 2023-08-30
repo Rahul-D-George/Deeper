@@ -6,16 +6,16 @@ import numpy as np
 
 def character_ages():
     character_df = pd.read_excel("MoreCharacterInfo.xlsx")
-    ages = character_df["Age"].values.tolist()
-    num_categories = 33
-    ohl = np.zeros((len(ages), num_categories))
-    for i, age in enumerate(ages):
-        j = age
-        ohl[i, j] = 1
-    return ohl.T
+    ages = list(map(lambda x: 1 if (x > 18) else 0, character_df["Age"].values.tolist()))
+    #num_categories = 33
+    #ohl = np.zeros((len(ages), num_categories))
+    #for i, age in enumerate(ages):
+    #    j = age
+    #    ohl[i, j] = 1
+    return ages
 
 
-def training_set_create(args=None):
+def training_set_create(args=None): # Bin-class, Categorical, etc.
     if args is None:
         base_names = os.listdir("img_set")
         dir_image_names = list(map(lambda x: os.path.join(os.getcwd(), "img_set\\" + x), base_names))
@@ -27,9 +27,9 @@ def training_set_create(args=None):
         image_data = np.array(image_data)
         image_data = image_data.reshape(len(base_names), 185*185*3).T
         image_data = image_data/255
-        return [image_data, character_ages()]
+        return [np.array(image_data), np.array(character_ages()).reshape((1, -1))]
     else:
         # Currently does nothing
         return None
 
-character_ages()
+print(character_ages())
