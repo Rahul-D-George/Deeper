@@ -1,11 +1,6 @@
 from numpy.random import uniform as u
 from activation_utils import *
 
-def compute_cost(AL, Y):
-    m = Y.shape[1]
-    cost = (-1 / m) * np.sum(Y * np.log(AL+1e-8) + (1 - Y) * np.log(1 - AL+1e-8))
-    cost = np.squeeze(cost)
-    return cost
 
 class NeuralNetwork:
 
@@ -84,18 +79,18 @@ class NeuralNetwork:
         dZ = final_activation_derivative * self.gsp[-1](acache)     #
         A, W, b = lcache
         m = A.shape[1]
-        dW = np.dot(dZ, (A.T)) / m
+        dW = np.dot(dZ, A.T) / m
         db = np.sum(dZ, axis=1, keepdims=True) / m
         dA = np.dot(W.T, dZ)
         self.gradients["dW" + str(self.n-1)] = dW
         self.gradients["db" + str(self.n-1)] = db
 
-        for l in range(len(self.caches)-2, -1, -1):                 # We want to start with our first unaccessed cache.
+        for l in range(len(self.caches)-2, -1, -1):                 # We want to start with our pre-penultimate cache.
             lcache, acache = self.caches[l]                         # We extract the separate caches
             dZ = dA * self.gsp[l](acache)                           # We use dA3 and Z3 to calculate dZ3
             A, W, b = lcache                                        # We retrieve A2, W3 and b3.
             m = A.shape[1]                                          # Same as before.
-            dW = np.dot(dZ, (A.T)) / m                              # We calculate dW3
+            dW = np.dot(dZ, A.T) / m                              # We calculate dW3
             db = np.sum(dZ, axis=1, keepdims=True) / m              # We calculate db3
             dA = np.dot(W.T, dZ)                                    # We calculate dA2
             self.gradients["dW" + str(l+1)] = dW
@@ -110,7 +105,7 @@ class NeuralNetwork:
             self.__forward_prop()
             self.__cost()
             self.__gradient_descent()
-            if (epoch % 100 == 0):
+            if epoch % 100 == 0:
                 print(f"Epoch {epoch}: Cost = {self.cost}")
 
     def predict(self, test_x, test_y):
