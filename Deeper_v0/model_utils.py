@@ -111,3 +111,10 @@ class NeuralNetwork:
             self.__gradient_descent()
             if (epoch % 100 == 0):
                 print(f"Epoch {epoch}: Cost = {self.cost}")
+
+    def predict(self, test_x, test_y):
+        self.X = test_x
+        self.__forward_prop()
+        probs = np.where(self.final_activation > 0.5, 1, 0)
+        acc = np.sum(probs == test_y) / test_y.shape
+        print(f"Percentage of accurate guesses: {acc[1]}")
