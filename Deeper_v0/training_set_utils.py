@@ -3,7 +3,6 @@ import pandas as pd
 import os
 import numpy as np
 
-
 def character_ages():
     character_df = pd.read_excel("MoreCharacterInfo.xlsx")
     ages = list(map(lambda x: 1 if (x > 18) else 0, character_df["Age"].values.tolist()))
