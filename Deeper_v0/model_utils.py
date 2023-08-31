@@ -70,6 +70,11 @@ class NeuralNetwork:
         caches.append(finalC)
         self.caches = caches
 
+
+    def regularise(self):
+        
+
+
     def __gradient_descent(self):
         final_activation_derivative = - (np.divide(self.Y, self.final_activation)
                                          - np.divide(1 - self.Y, 1 - self.final_activation))
