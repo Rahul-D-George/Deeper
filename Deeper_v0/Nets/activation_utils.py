@@ -32,5 +32,6 @@ def softmax(x):
 
 
 def dsoftmax(x):
+    print(x.shape)
     s = x.reshape(-1,1)
     return np.diagflat(s) - np.dot(s, s.T)
