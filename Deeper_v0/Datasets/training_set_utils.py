@@ -14,9 +14,9 @@ def character_ages():
     return ages
 
 
-def training_set_create(args=None): # Bin-class, Categorical, etc.
-    if args is None:
-        base_names = os.listdir("img_set")
+def training_set_create(type = None): # Bin-class, Categorical, etc.
+    if type is None:
+        base_names = os.listdir("../img_set")
         dir_image_names = list(map(lambda x: os.path.join(os.getcwd(), "img_set\\" + x), base_names))
         image_data = []
         for image in dir_image_names:
@@ -27,8 +27,10 @@ def training_set_create(args=None): # Bin-class, Categorical, etc.
         image_data = image_data.reshape(len(base_names), 185*185*3).T
         image_data = image_data/255
         return np.array(image_data), np.array(character_ages()).reshape((1, -1))
-    else:
+    elif type == "age":
         # Currently does nothing
         return None
+    else:
+        print("Invalid parameter passed.")
 
 training_set_create()

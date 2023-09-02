@@ -1,5 +1,5 @@
-from training_set_utils import training_set_create
-from model_utils import NeuralNetwork
+from Datasets.training_set_utils import training_set_create
+from Nets.model_utils import NeuralNetwork
 import numpy as np
 
 train_x, train_y = training_set_create()

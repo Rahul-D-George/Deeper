@@ -1,6 +1,6 @@
 import numpy as np
 import h5py
-from model_utils import NeuralNetwork
+from Nets.model_utils import NeuralNetwork
 
 train_dataset = h5py.File('train_catvnoncat.h5', "r")
 unmod_train_x = np.array(train_dataset["train_set_x"][:])

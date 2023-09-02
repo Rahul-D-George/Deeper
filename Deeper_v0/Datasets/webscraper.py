@@ -21,7 +21,7 @@ for row in name_soup.find_all("tr"):
             name = name.replace(" ", "_")
         names.append(name)
 
-dir_name = os.path.join(os.getcwd(), "img_set")
+dir_name = os.path.join(os.getcwd(), "../img_set")
 if not os.path.exists(dir_name):
     os.mkdir(dir_name)
 rel_path = os.getcwd() + "\\" + "img_set"
