@@ -18,7 +18,6 @@ test_x_flatten = unmod_test_x.reshape(unmod_test_x.shape[0], -1).T
 train_x = train_x_flatten/255.
 test_x = test_x_flatten/255.
 
-catnn = NeuralNetwork([np.shape(train_x)[0], 10, 1], 0.0075, [train_x, train_y], epochs=1500)
+catnn = NeuralNetwork([np.shape(train_x)[0], 4, 4, 1], 0.0075, [train_x, train_y], epochs=1200)
 catnn.train()
-
 catnn.predict(test_x, test_y)

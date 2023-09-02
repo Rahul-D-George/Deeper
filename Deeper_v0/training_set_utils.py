@@ -26,9 +26,9 @@ def training_set_create(args=None): # Bin-class, Categorical, etc.
         image_data = np.array(image_data)
         image_data = image_data.reshape(len(base_names), 185*185*3).T
         image_data = image_data/255
-        return [np.array(image_data), np.array(character_ages()).reshape((1, -1))]
+        return np.array(image_data), np.array(character_ages()).reshape((1, -1))
     else:
         # Currently does nothing
         return None
 
-print(character_ages())
+training_set_create()
