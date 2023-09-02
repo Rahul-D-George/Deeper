@@ -4,12 +4,13 @@ Deep learning model and associated helper code to gather images of video-game ch
 > [!NOTE]
 > This is all entirely for fun, don't take it seriously.
 
-## Goals for Future Versions
-
+CURRENT VERSION - **v0.0.1**
 
 **v0.0.0** - Fully functional and working, binary classification for over or under 18 implemented. Modularised successfuly as well.
 
 **v0.0.1** - Object oriented implementation of ```bin_class```
+
+FUTURE VERSIONS - 
 
 **v0.0.2** - Stochastic gradient descent implemented
 
