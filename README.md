@@ -4,25 +4,24 @@ Deep learning model and associated helper code to gather images of video-game ch
 > [!NOTE]
 > This is all entirely for fun, don't take it seriously.
 
-CURRENT VERSION - **v0.0.1**
+##Version v0.0.1
 
 **v0.0.0** - Fully functional and working, binary classification for over or under 18 implemented. Modularised successfuly as well.
 
 **v0.0.1** - Object oriented implementation of ```bin_class```
 
-FUTURE VERSIONS - 
-
-**v0.0.2** - Stochastic gradient descent implemented
+##Future Versions (Planned)
 
 **v0.1.0** - Implemented categorical classification using softmax.
 
 **v0.1.1** - Customisable activations and activation derivatives.
 
-**v0.1.2** - Add Adam optimiser.
+**v0.2.0** - Implement L2/Frobenius, augment data.
+
+**v0.2.1** - Implement optional stochastic/minibatch gradient descent.
 
 **v1.0** - *Maybe* slightly optimistic, but do something with a CNN.
 
 ## Linked Future Projects
-
 
 ???
