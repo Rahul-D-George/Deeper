@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 def character_ages():
-    character_df = pd.read_excel("MoreCharacterInfo.xlsx")
+    character_df = pd.read_excel("Datasets/MoreCharacterInfo.xlsx")
     ages = list(map(lambda x: 1 if (x > 18) else 0, character_df["Age"].values.tolist()))
     #num_categories = 33
     #ohl = np.zeros((len(ages), num_categories))
@@ -16,7 +16,7 @@ def character_ages():
 
 def training_set_create(type = None): # Bin-class, Categorical, etc.
     if type is None:
-        base_names = os.listdir("../img_set")
+        base_names = os.listdir("img_set")
         dir_image_names = list(map(lambda x: os.path.join(os.getcwd(), "img_set\\" + x), base_names))
         image_data = []
         for image in dir_image_names:

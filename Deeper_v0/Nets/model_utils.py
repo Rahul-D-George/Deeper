@@ -1,5 +1,5 @@
 from numpy.random import uniform as u
-from activation_utils import *
+from Nets.activation_utils import *
 
 
 class NeuralNetwork:
@@ -65,9 +65,12 @@ class NeuralNetwork:
         caches.append(finalC)
         self.caches = caches
 
-    def __gradient_descent(self):
-        final_activation_derivative = - (np.divide(self.Y, self.final_activation)
+    def final_deriv(self):
+        return - (np.divide(self.Y, self.final_activation)
                                          - np.divide(1 - self.Y, 1 - self.final_activation))
+
+    def __gradient_descent(self):
+        final_activation_derivative = self.final_deriv()
         lcache, acache = self.caches[-1]
         dZ = final_activation_derivative * self.gsp[-1](acache)     #
         A, W, b = lcache
