@@ -4,10 +4,10 @@ from Nets.activation_utils import *
 
 class NeuralNetwork:
 
-    def __init__(self, n_sizes, lr, train_data, epochs=None, gs=None, gsp=None):
+    def __init__(self, n_sizes, lr, train_data, epochs=None, gs=None, gsp=None, lambd=None, dropprob=None):
 
         self.n = len(n_sizes)
-        self.params = {}  # Uses random initialisation.
+        self.params = {}  # Uses He initialisation.
         for l in range(1, self.n):
             self.params['W' + str(l)] = np.random.randn(n_sizes[l], n_sizes[l - 1]) / np.sqrt(n_sizes[l - 1])
             self.params['b' + str(l)] = np.zeros((n_sizes[l], 1))
@@ -17,6 +17,8 @@ class NeuralNetwork:
         self.Y = np.array(train_data[1])
         self.caches = [[]]
         self.m = self.Y.shape[1]
+        self.lambd = lambd
+        self.dropout = dropprob
 
         self.final_activation = np.empty(np.shape(self.Y))
         self.acc = 0
@@ -41,6 +43,12 @@ class NeuralNetwork:
         m, Y, AL = self.m, self.Y, self.final_activation
         cost = (-1 / m) * np.sum(Y * np.log(AL + 1e-8) + (1 - Y) * np.log(1 - AL + 1e-8))
         self.cost = np.squeeze(cost)
+        if self.lambd is not None:
+            Ws = list(filter(lambda x: x[0] == "W", self.params.keys()))
+            reg = 0
+            for weight in Ws:
+                reg += np.sum(np.square(self.params[weight]))
+            self.cost += (reg * (self.lambd/(2*m)))
 
     @staticmethod
     def __forward_calc(Ap, W, b, actv):
@@ -57,6 +65,8 @@ class NeuralNetwork:
             Z = np.dot(W, A_prev) + b
             cache = ((A_prev, W, b), Z)
             A = self.gs[l](Z)
+            # if self.dropout is not None:
+            #     A = np.multiply(A, np.random.rand(A.shape[0], A.shape[1]) < self.dropout) / self.dropout
             caches.append(cache)
         Wn = self.params["W" + str(self.n - 1)]
         bn = self.params["b" + str(self.n - 1)]
@@ -76,6 +86,8 @@ class NeuralNetwork:
         A, W, b = lcache
         m = A.shape[1]
         dW = np.dot(dZ, A.T) / m
+        if self.lambd is not None:
+            dW += (W * (self.lambd/m))
         db = np.sum(dZ, axis=1, keepdims=True) / m
         dA = np.dot(W.T, dZ)
         self.gradients["dW" + str(self.n-1)] = dW
@@ -87,6 +99,8 @@ class NeuralNetwork:
             A, W, b = lcache
             m = A.shape[1]
             dW = np.dot(dZ, A.T) / m
+            if self.lambd is not None:
+                dW += (W * (self.lambd / m))
             db = np.sum(dZ, axis=1, keepdims=True) / m
             dA = np.dot(W.T, dZ)
             self.gradients["dW" + str(l+1)] = dW

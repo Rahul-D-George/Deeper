@@ -35,7 +35,3 @@ def training_set_create(type = None): # Bin-class, Categorical, etc.
         return np.array(image_data), character_ages(1)
     else:
         print("Invalid parameter passed.")
-
-
-# np.set_printoptions(threshold=np.inf)
-# (character_ages(1))
