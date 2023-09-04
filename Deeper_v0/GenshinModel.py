@@ -6,7 +6,7 @@ import numpy as np
 
 def binary_class():
     train_x, train_y = training_set_create()
-    genshinNet = NeuralNetwork([np.shape(train_x)[0], 120, 60, 30, 10, 1], 0.0075, [train_x, train_y], epochs=1000)
+    genshinNet = NeuralNetwork([np.shape(train_x)[0], 120, 60, 30, 15, 7, 1], 0.0075, [train_x, train_y], epochs=1000)
     genshinNet.train()
     genshinNet.predict(train_x, train_y)
 

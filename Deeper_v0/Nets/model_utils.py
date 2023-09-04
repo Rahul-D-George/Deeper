@@ -9,7 +9,7 @@ class NeuralNetwork:
         self.n = len(n_sizes)
         self.params = {}  # Uses random initialisation.
         for l in range(1, self.n):
-            self.params['W' + str(l)] = np.random.randn(n_sizes[l], n_sizes[l - 1]) * 0.01 # / np.sqrt(n_sizes[l - 1])
+            self.params['W' + str(l)] = np.random.randn(n_sizes[l], n_sizes[l - 1]) / np.sqrt(n_sizes[l - 1])
             self.params['b' + str(l)] = np.zeros((n_sizes[l], 1))
 
         self.lr = lr
