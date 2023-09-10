@@ -2,7 +2,7 @@ from PIL import Image
 import pandas as pd
 import os
 import numpy as np
-
+from random import shuffle
 
 def character_ages(type):
     character_df = pd.read_excel(r"Datasets/MoreCharacterInfo.xlsx")
@@ -32,8 +32,12 @@ def training_set_create(type = None): # Bin-class, Categorical, etc.
         image_data = image_data.reshape(len(base_names), 185 * 185 * 3).T
         return np.array(image_data), np.array(character_ages(0)).reshape((1, -1))
     elif type == "age":
-        print(image_data.shape)
-        return image_data, character_ages(1)
+        ages = character_ages(1)
+        shuffleset = [i for i in range(0, 70)]
+        shuffle(shuffleset)
+        t_imgs = np.array(list(map(lambda x: image_data[x], shuffleset)))
+        t_labels = np.array(list(map(lambda x: ages[x], shuffleset)))
+        t_labelnames = list(map(lambda x: base_names[x], shuffleset))
+        return t_imgs[:55], t_labels[:55], t_imgs[56:], t_labels[56:], t_labelnames[:55], t_labelnames[56:]
     else:
         print("Invalid parameter passed.")
-

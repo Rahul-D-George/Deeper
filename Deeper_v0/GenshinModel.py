@@ -12,9 +12,12 @@ def binary_class():
 
 
 def multi_class():
-    train_x, train_y = training_set_create(type="age")
-    genshinNet = ConvClassifier(train_x, train_y, epochs=15)
+    train_x, train_y, test_x, test_y, train_names, test_names = training_set_create(type="age")
+    genshinNet = ConvClassifier(train_x, train_y, epochs=30)
     genshinNet.train()
+    results = genshinNet.predict(train_x)
+    for i in range(len(train_names)):
+        print(f"Prediction for {train_names[i]}: {results[i]}. Actual Value: {train_y[i]}")
 
 
 multi_class()
