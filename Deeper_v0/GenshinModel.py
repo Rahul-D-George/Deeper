@@ -13,11 +13,14 @@ def binary_class():
 
 def multi_class():
     train_x, train_y, test_x, test_y, train_names, test_names = training_set_create(type="age")
-    genshinNet = ConvClassifier(train_x, train_y, epochs=30)
+    genshinNet = ConvClassifier(train_x, train_y, epochs=17)
     genshinNet.train()
-    results = genshinNet.predict(train_x)
-    for i in range(len(train_names)):
-        print(f"Prediction for {train_names[i]}: {results[i]}. Actual Value: {train_y[i]}")
+    full_set = np.concatenate((train_x, test_x), axis=0)
+    results = genshinNet.predict(full_set)
+    ages = np.append(train_y, test_y)
+    names = np.append(train_names, test_names)
 
+    for i in range(len(np.append(train_names, test_names))):
+        print(f"Prediction for {names[i]}: {results[i]}. Actual Value: {ages[i]}")
 
 multi_class()

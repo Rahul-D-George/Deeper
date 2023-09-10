@@ -37,7 +37,7 @@ def training_set_create(type = None): # Bin-class, Categorical, etc.
         shuffle(shuffleset)
         t_imgs = np.array(list(map(lambda x: image_data[x], shuffleset)))
         t_labels = np.array(list(map(lambda x: ages[x], shuffleset)))
-        t_labelnames = list(map(lambda x: base_names[x], shuffleset))
-        return t_imgs[:55], t_labels[:55], t_imgs[56:], t_labels[56:], t_labelnames[:55], t_labelnames[56:]
+        t_labelnames = np.array(list(map(lambda x: base_names[x], shuffleset)))
+        return t_imgs[:55], t_labels[:55], t_imgs[55:], t_labels[55:], t_labelnames[:55], t_labelnames[55:]
     else:
         print("Invalid parameter passed.")
