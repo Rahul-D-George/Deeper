@@ -4,11 +4,12 @@ import os
 import numpy as np
 from random import shuffle
 
-def character_ages(type):
+
+def character_ages(label):
     character_df = pd.read_excel(r"Datasets/MoreCharacterInfo.xlsx")
-    if type == 0:
+    if label == 0:
         return list(map(lambda x: 1 if (x > 18) else 0, character_df["Age"].values.tolist()))
-    if type == 1:
+    if label == 1:
         ages = character_df["Age"].values.tolist()
         # num_categories = 33
         # ohl = np.zeros((len(ages), num_categories))
@@ -18,7 +19,7 @@ def character_ages(type):
         return ages
 
 
-def training_set_create(type = None): # Bin-class, Categorical, etc.
+def training_set_create(label=None):  # Bin-class, Categorical, etc.
     base_names = os.listdir('img_set')
     dir_image_names = list(map(lambda x: os.path.join(os.getcwd(), "img_set", x), base_names))
     image_data = []
@@ -28,10 +29,10 @@ def training_set_create(type = None): # Bin-class, Categorical, etc.
         image_data.append(np.array(rgb_array))
     image_data = np.array(image_data)
     image_data = image_data / 255
-    if type is None:
+    if label is None:
         image_data = image_data.reshape(len(base_names), 185 * 185 * 3).T
         return np.array(image_data), np.array(character_ages(0)).reshape((1, -1))
-    elif type == "age":
+    elif label == "age":
         ages = character_ages(1)
         shuffleset = [i for i in range(0, 70)]
         shuffle(shuffleset)

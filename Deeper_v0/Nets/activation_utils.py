@@ -6,16 +6,16 @@ def tanh(x):
 
 
 def dtanh(x):
-    return 1 - (tanh(x)**2)
+    return 1 - (tanh(x) ** 2)
 
 
 def sigmoid(x):
-    return 1/(1 + np.exp(-x))
+    return 1 / (1 + np.exp(-x))
 
 
 def dsigmoid(x):
     sig = sigmoid(x)
-    return sig*(1-sig)
+    return sig * (1 - sig)
 
 
 def relu(x):
@@ -28,10 +28,10 @@ def drelu(x):
 
 def softmax(x):
     exp = np.exp(x)
-    return exp/np.sum(exp)
+    return exp / np.sum(exp)
 
 
 def dsoftmax(x):
     print(x.shape)
-    s = x.reshape(-1,1)
+    s = x.reshape(-1, 1)
     return np.diagflat(s) - np.dot(s, s.T)

@@ -1,5 +1,4 @@
-from numpy.random import uniform as u
-from Nets.activation_utils import *
+from activation_utils import *
 
 
 class NeuralNetwork:
@@ -48,7 +47,7 @@ class NeuralNetwork:
             reg = 0
             for weight in Ws:
                 reg += np.sum(np.square(self.params[weight]))
-            self.cost += (reg * (self.lambd/(2*m)))
+            self.cost += (reg * (self.lambd / (2 * m)))
 
     @staticmethod
     def __forward_calc(Ap, W, b, actv):
@@ -76,7 +75,7 @@ class NeuralNetwork:
 
     def fdZ_calc(self):
         final_actv = - (np.divide(self.Y, self.final_activation)
-                                         - np.divide(1 - self.Y, 1 - self.final_activation))
+                        - np.divide(1 - self.Y, 1 - self.final_activation))
         _, acache = self.caches[-1]
         return final_actv * self.gsp[-1](acache)
 
@@ -87,13 +86,13 @@ class NeuralNetwork:
         m = A.shape[1]
         dW = np.dot(dZ, A.T) / m
         if self.lambd is not None:
-            dW += (W * (self.lambd/m))
+            dW += (W * (self.lambd / m))
         db = np.sum(dZ, axis=1, keepdims=True) / m
         dA = np.dot(W.T, dZ)
-        self.gradients["dW" + str(self.n-1)] = dW
-        self.gradients["db" + str(self.n-1)] = db
+        self.gradients["dW" + str(self.n - 1)] = dW
+        self.gradients["db" + str(self.n - 1)] = db
 
-        for l in range(len(self.caches)-2, -1, -1):
+        for l in range(len(self.caches) - 2, -1, -1):
             lcache, acache = self.caches[l]
             dZ = dA * self.gsp[l](acache)
             A, W, b = lcache
@@ -103,12 +102,12 @@ class NeuralNetwork:
                 dW += (W * (self.lambd / m))
             db = np.sum(dZ, axis=1, keepdims=True) / m
             dA = np.dot(W.T, dZ)
-            self.gradients["dW" + str(l+1)] = dW
-            self.gradients["db" + str(l+1)] = db
+            self.gradients["dW" + str(l + 1)] = dW
+            self.gradients["db" + str(l + 1)] = db
 
-        for l in range(self.n-1):
-            self.params["W" + str(l+1)] = self.params["W" + str(l+1)] - self.gradients["dW" + str(l+1)] * self.lr
-            self.params["b" + str(l+1)] = self.params["b" + str(l+1)] - self.gradients["db" + str(l+1)] * self.lr
+        for l in range(self.n - 1):
+            self.params["W" + str(l + 1)] = self.params["W" + str(l + 1)] - self.gradients["dW" + str(l + 1)] * self.lr
+            self.params["b" + str(l + 1)] = self.params["b" + str(l + 1)] - self.gradients["db" + str(l + 1)] * self.lr
 
     def train(self):
         for epoch in range(0, self.epochs):
@@ -123,4 +122,4 @@ class NeuralNetwork:
         self.__forward_prop()
         probs = np.where(self.final_activation > 0.5, 1, 0)
         acc = np.sum(probs == test_y) / test_y.shape
-        print(f"Percentage of accurate guesses: {100*acc[1]}%")
+        print(f"Percentage of accurate guesses: {100 * acc[1]}%")

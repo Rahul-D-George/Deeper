@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import sys
 
+
 class ConvClassifier:
     def __init__(self, X, Ydata, epochs=None, summarise=False):
         self.nclasses = max(Ydata) + 1
@@ -36,7 +37,8 @@ class ConvClassifier:
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
 
-        if summarise: print(self.model.summary())
+        if summarise:
+            print(self.model.summary())
 
     def train(self):
         if not self.trained:
@@ -48,7 +50,7 @@ class ConvClassifier:
     def predict(self, example):
         if self.trained:
             probs = self.model.predict(example)
-            ages = list(map(lambda x : np.argmax(x), probs))
+            ages = list(map(lambda x: np.argmax(x), probs))
             return ages
         else:
             sys.stderr.write("Model must be trained first.")
