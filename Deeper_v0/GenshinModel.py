@@ -1,6 +1,6 @@
 from Datasets.training_set_utils import training_set_create
 from Nets.model_utils import NeuralNetwork
-from Nets.multiclass_utils import SoftMaxNN
+from Nets.multiclass_utils import ConvClassifier
 import numpy as np
 
 
@@ -13,7 +13,7 @@ def binary_class():
 
 def multi_class():
     train_x, train_y = training_set_create(type="age")
-    genshinNet = SoftMaxNN([np.shape(train_x)[0], 120, 60, 33], 0.0075, [train_x, train_y], epochs=500)
+    genshinNet = ConvClassifier(train_x, train_y, epochs=15)
     genshinNet.train()
 
 

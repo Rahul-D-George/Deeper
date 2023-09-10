@@ -1,27 +1,40 @@
-from Nets.model_utils import NeuralNetwork
-from Nets.activation_utils import *
+import tensorflow as tf
 
 
-class SoftMaxNN(NeuralNetwork):
-    def __init__(self, n_sizes, lr, train_data, epochs=None, gs=None, gsp=None):
+class ConvClassifier:
+    def __init__(self, X, Ydata, epochs=None, summarise=False):
+        self.nclasses = len(Ydata)
 
-        n = len(n_sizes)
-        if gs is None:
-            gs = [relu for _ in range(n - 1)]
-            gs.append(softmax)
-            gsp = [drelu for _ in range(n - 1)]
-            gsp.append(dsoftmax)
+        self.X = X
+        self.Y = tf.keras.utils.to_categorical(Ydata, num_classes=self.nclasses)
         if epochs is None:
-            epochs = 1000
+            self.epochs = 10
+        else:
+            self.epochs = epochs
 
-        assert gs[-1] == softmax and gsp[-1] == dsoftmax and train_data[1].shape[0] == n_sizes[-1]
+        self.model = tf.keras.Sequential([
+            tf.keras.layers.ZeroPadding2D(padding=(1, 1), input_shape=(185, 185, 3)),
+            tf.keras.layers.Conv2D(16, 7, strides=(1, 1)),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.MaxPooling2D(),
+            tf.keras.layers.Conv2D(32, 5, strides=(1, 1)),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.MaxPooling2D(),
+            tf.keras.layers.Conv2D(64, 3, strides=(1, 1)),
+            tf.keras.layers.BatchNormalization(),
+            tf.keras.layers.ReLU(),
+            tf.keras.layers.MaxPooling2D(),
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(self.nclasses, activation="softmax"),
+        ])
 
-        NeuralNetwork.__init__(self, n_sizes, lr, train_data, epochs, gs, gsp)
+        self.model.compile(optimizer='adam',
+                           loss='categorical_crossentropy',
+                           metrics=['accuracy'])
 
-    def __cost(self):  # Uses categorical cross entropy to compute cost.
-        m, Y, AL = self.m, self.Y, self.final_activation
-        cost = (-1 / m) * np.sum(Y * np.log(AL))
-        self.cost = np.squeeze(cost)
+        if summarise: print(self.model.summary())
 
-    def fdZ_calc(self):
-        return self.final_activation - self.Y
+    def train(self):
+        self.model.fit(self.X, self.Y, epochs=self.epochs)
